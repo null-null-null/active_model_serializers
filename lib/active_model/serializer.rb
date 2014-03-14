@@ -133,11 +133,19 @@ end
       associations.each_with_object({}) do |(name, association), hash|
         if included_associations.include? name
           if association.embed_ids?
-            hash[association.embedded_key] = association.serialize_ids(send(association.name))
+            hash[key_for(association)] = association.serialize_ids(send(association.name))
           elsif association.embed_objects?
             hash[association.embedded_key] = association.serialize(send(association.name))
           end
         end
+      end
+    end
+
+    def key_for(association)
+      if association.serialize_ids(send(association.name)).is_a?(Hash)
+        association.embedded_key
+      else
+        association.key
       end
     end
 
